@@ -25,12 +25,21 @@ def parse_single_course(course_card: Tag) -> Course:
     )
 
 
+def get_course_card(card_marker: Tag) -> Tag:
+    if card_marker.name == "a":
+        return card_marker
+    return card_marker.find_parent("a")
+
+
 def get_all_courses() -> list[Course]:
     page = requests.get(BASE_URL).content
     soup = BeautifulSoup(page, "html.parser")
-    course_cards = soup.select("a:has([data-qa='profession-card'])")
+    card_markers = soup.select("[data-qa='profession-card']")
 
-    return [parse_single_course(course_card) for course_card in course_cards]
+    return [
+        parse_single_course(get_course_card(card_marker))
+        for card_marker in card_markers
+    ]
 
 
 if __name__ == "__main__":
